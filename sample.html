@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TransportPro Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --dark: #34495e;
+            --light: #ecf0f1;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        .sidebar {
+            background: var(--primary);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            width: 250px;
+            transition: all 0.3s;
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            transition: all 0.3s;
+        }
+        
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            border-radius: 5px;
+            margin: 2px 0;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .nav-link i {
+            width: 24px;
+            text-align: center;
+            margin-right: 10px;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .income-card {
+            border-left: 4px solid var(--success);
+        }
+        
+        .expense-card {
+            border-left: 4px solid var(--danger);
+        }
+        
+        .profit-card {
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .trip-card {
+            border-left: 4px solid var(--warning);
+        }
+        
+        #trip-group {
+            transition: all 0.3s ease;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                margin-left: -250px;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .sidebar.active {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <div class="sidebar p-3" id="sidebar">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="m-0">TransportPro</h4>
+                <button class="btn btn-sm btn-outline-light d-md-none" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-truck"></i>
+                        Trips
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-money-bill-wave"></i>
+                        Income
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-receipt"></i>
+                        Expenses
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-chart-pie"></i>
+                        Reports
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-cog"></i>
+                        Settings
+                    </a>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content p-4" id="mainContent">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">Financial Dashboard</h2>
+                <div class="badge bg-white text-dark p-2">
+                    <i class="fas fa-calendar-alt me-2"></i>
+                    <span id="currentDate"></span>
+                </div>
+            </div>
+            
+            <!-- Add Entry Form -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Add New Transaction</h5>
+                    
+                    <form id="transactionForm">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label for="transactionType" class="form-label">Type</label>
+                                <select class="form-select" id="transactionType" required>
+                                    <option value="">Select type</option>
+                                    <option value="income">Income</option>
+                                    <option value="expense">Expense</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <label for="transactionCategory" class="form-label">Category</label>
+                                <select class="form-select" id="transactionCategory" required>
+                                    <option value="">Select type first</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-2">
+                                <label for="transactionAmount" class="form-label">Amount</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control" id="transactionAmount" 
+                                           placeholder="0.00" step="0.01" required>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-2">
+                                <label for="transactionDate" class="form-label">Date</label>
+                                <input type="date" class="form-control" id="transactionDate" required>
+                            </div>
+                            
+                            <div class="col-md-4" id="tripReferenceGroup" style="display: none;">
+                                <label for="tripReference" class="form-label">Trip Reference</label>
+                                <input type="text" class="form-control" id="tripReference" 
+                                       placeholder="Enter trip ID">
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="transactionDescription" class="form-label">Description</label>
+                                <input type="text" class="form-control" id="transactionDescription" 
+                                       placeholder="Enter description" required>
+                            </div>
+                            
+                            <div class="col-md-6 d-flex align-items-end">
+                                <button type="submit" class="btn btn-success me-2" id="submitIncome" style="display: none;">
+                                    <i class="fas fa-plus-circle me-1"></i> Add Income
+                                </button>
+                                <button type="submit" class="btn btn-danger" id="submitExpense" style="display: none;">
+                                    <i class="fas fa-minus-circle me-1"></i> Add Expense
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Summary Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3 mb-3">
+                    <div class="card h-100 income-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="text-muted mb-2">Total Income</h6>
+                                    <h3 id="totalIncome">$0.00</h3>
+                                    <small class="text-success" id="incomeChange">
+                                        <i class="fas fa-caret-up"></i> 0% from last month
+                                    </small>
+                                </div>
+                                <div class="bg-success bg-opacity-10 p-3 rounded">
+                                    <i class="fas fa-dollar-sign text-success"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3 mb-3">
+                    <div class="card h-100 expense-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="text-muted mb-2">Total Expenses</h6>
+                                    <h3 id="totalExpense">$0.00</h3>
+                                    <small class="text-danger" id="expenseChange">
+                                        <i class="fas fa-caret-up"></i> 0% from last month
+                                    </small>
+                                </div>
+                                <div class="bg-danger bg-opacity-10 p-3 rounded">
+                                    <i class="fas fa-receipt text-danger"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3 mb-3">
+                    <div class="card h-100 profit-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="text-muted mb-2">Net Profit</h6>
+                                    <h3 id="netProfit">$0.00</h3>
+                                    <small class="text-primary" id="profitChange">
+                                        <i class="fas fa-caret-up"></i> 0% from last month
+                                    </small>
+                                </div>
+                                <div class="bg-primary bg-opacity-10 p-3 rounded">
+                                    <i class="fas fa-chart-line text-primary"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3 mb-3">
+                    <div class="card h-100 trip-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="text-muted mb-2">Completed Trips</h6>
+                                    <h3 id="completedTrips">0</h3>
+                                    <small class="text-warning" id="tripsChange">
+                                        <i class="fas fa-caret-up"></i> 0 from last month
+                                    </small>
+                                </div>
+                                <div class="bg-warning bg-opacity-10 p-3 rounded">
+                                    <i class="fas fa-truck text-warning"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Transactions -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title mb-0">Recent Transactions</h5>
+                        <button class="btn btn-sm btn-outline-secondary" id="viewAllTransactions">
+                            View All
+                        </button>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="transactionsTable">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Description</th>
+                                    <th>Amount</th>
+                                    <th>Type</th>
+                                    <th>Category</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactionsBody">
+                                <!-- Transactions will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize the dashboard
+            initDashboard();
+            
+            // Set up event listeners
+            setupEventListeners();
+        });
+        
+        function initDashboard() {
+            // Set current date
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', options);
+            
+            // Set default transaction date to today
+            document.getElementById('transactionDate').valueAsDate = new Date();
+            
+            // Load transactions from localStorage
+            loadTransactions();
+            
+            // Initialize sidebar toggle for mobile
+            document.getElementById('sidebarToggle').addEventListener('click', function() {
+                document.getElementById('sidebar').classList.toggle('active');
+                document.getElementById('mainContent').classList.toggle('active');
+            });
+        }
+        
+        function setupEventListeners() {
+            // Transaction type change handler
+            document.getElementById('transactionType').addEventListener('change', function() {
+                updateFormFields(this.value);
+            });
+            
+            // Form submission handler
+            document.getElementById('transactionForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                addTransaction();
+            });
+            
+            // View all transactions button
+            document.getElementById('viewAllTransactions').addEventListener('click', function() {
+                alert('View all transactions functionality would go here');
+            });
+        }
+        
+        function updateFormFields(transactionType) {
+            const categorySelect = document.getElementById('transactionCategory');
+            const tripGroup = document.getElementById('tripReferenceGroup');
+            const submitIncome = document.getElementById('submitIncome');
+            const submitExpense = document.getElementById('submitExpense');
+            
+            // Reset form fields
+            categorySelect.innerHTML = '<option value="">Select category</option>';
+            submitIncome.style.display = 'none';
+            submitExpense.style.display = 'none';
+            tripGroup.style.display = 'none';
+            
+            if (transactionType === 'income') {
+                // Income categories
+                const incomeCategories = [
+                    'Freight Delivery',
+                    'Local Delivery',
+                    'Interstate Transport',
+                    'Special Load',
+                    'Other Income'
+                ];
+                
+                incomeCategories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category;
+                    option.textContent = category;
+                    categorySelect.appendChild(option);
+                });
+                
+                submitIncome.style.display = 'inline-block';
+                tripGroup.style.display = 'block';
+            } 
+            else if (transactionType === 'expense') {
+                // Expense categories
+                const expenseCategories = [
+                    'Fuel',
+                    'Maintenance',
+                    'Insurance',
+                    'Salaries',
+                    'Tolls',
+                    'Parking',
+                    'Repairs',
+                    'Other Expenses'
+                ];
+                
+                expenseCategories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category;
+                    option.textContent = category;
+                    categorySelect.appendChild(option);
+                });
+                
+                submitExpense.style.display = 'inline-block';
+            }
+        }
+        
+        function addTransaction() {
+            const type = document.getElementById('transactionType').value;
+            const category = document.getElementById('transactionCategory').value;
+            const amount = parseFloat(document.getElementById('transactionAmount').value);
+            const date = document.getElementById('transactionDate').value;
+            const description = document.getElementById('transactionDescription').value;
+            const tripReference = type === 'income' ? document.getElementById('tripReference').value : null;
+            
+            // Validate form
+            if (!type || !category || isNaN(amount) || !date || !description) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            if (type === 'income' && !tripReference) {
+                alert('Please enter a trip reference for income transactions');
+                return;
+            }
+            
+            // Create transaction object
+            const transaction = {
+                id: Date.now(),
+                type,
+                category,
+                amount,
+                date,
+                description,
+                tripReference,
+                createdAt: new Date().toISOString()
+            };
+            
+            // Save transaction
+            saveTransaction(transaction);
+            
+            // Update UI
+            updateDashboard();
+            
+            // Reset form
+            document.getElementById('transactionForm').reset();
+            document.getElementById('transactionDate').valueAsDate = new Date();
+            document.getElementById('transactionType').dispatchEvent(new Event('change'));
+        }
+        
+        function saveTransaction(transaction) {
+            let transactions = JSON.parse(localStorage.getItem('transportTransactions')) || [];
+            transactions.push(transaction);
+            localStorage.setItem('transportTransactions', JSON.stringify(transactions));
+        }
+        
+        function loadTransactions() {
+            const transactions = JSON.parse(localStorage.getItem('transportTransactions')) || [];
+            updateDashboard(transactions);
+        }
+        
+        function updateDashboard(transactions = null) {
+            transactions = transactions || JSON.parse(localStorage.getItem('transportTransactions')) || [];
+            
+            // Calculate totals
+            const income = transactions
+                .filter(t => t.type === 'income')
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const expenses = transactions
+                .filter(t => t.type === 'expense')
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const profit = income - expenses;
+            const trips = new Set(transactions
+                .filter(t => t.type === 'income' && t.tripReference)
+                .map(t => t.tripReference)).size;
+            
+            // Update summary cards
+            document.getElementById('totalIncome').textContent = `$${income.toFixed(2)}`;
+            document.getElementById('totalExpense').textContent = `$${expenses.toFixed(2)}`;
+            document.getElementById('netProfit').textContent = `$${profit.toFixed(2)}`;
+            document.getElementById('completedTrips').textContent = trips;
+            
+            // Update transactions table
+            updateTransactionsTable(transactions);
+        }
+        
+        function updateTransactionsTable(transactions) {
+            const tbody = document.getElementById('transactionsBody');
+            tbody.innerHTML = '';
+            
+            // Sort by date (newest first) and get last 5
+            const recentTransactions = [...transactions]
+                .sort((a, b) => new Date(b.date) - new Date(a.date))
+                .slice(0, 5);
+            
+            recentTransactions.forEach(transaction => {
+                const row = document.createElement('tr');
+                
+                // Format date
+                const date = new Date(transaction.date);
+                const formattedDate = date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+                
+                // Set row color based on type
+                if (transaction.type === 'income') {
+                    row.classList.add('table-success');
+                } else {
+                    row.classList.add('table-danger');
+                }
+                
+                row.innerHTML = `
+                    <td>${formattedDate}</td>
+                    <td>${transaction.description}</td>
+                    <td>$${transaction.amount.toFixed(2)}</td>
+                    <td>${transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}</td>
+                    <td>${transaction.category}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+    </script>
+</body>
+</html>

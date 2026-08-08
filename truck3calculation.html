@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Add these with your other script tags -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transport Business Dashboard</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2b5075;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f6fa;
+            color: var(--dark);
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            background: var(--primary);
+            color: white;
+            padding: 20px 0;
+        }
+        
+        .logo {
+            text-align: center;
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .logo h2 {
+            font-size: 1.5rem;
+        }
+        
+        .nav-menu {
+            margin-top: 30px;
+        }
+        
+        .nav-item {
+            padding: 15px 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .nav-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .nav-item.active {
+            background: var(--secondary);
+        }
+        
+        .nav-item i {
+            margin-right: 10px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            padding: 30px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: var(--primary);
+        }
+        
+        .date {
+            background: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        /* Cards */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .card h3 {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+        
+        .card .value {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        
+        .card.income .value {
+            color: var(--success);
+        }
+        
+        .card.expenses .value {
+            color: var(--danger);
+        }
+        
+        .card.profit .value {
+            color: var(--secondary);
+        }
+        
+        /* Charts */
+        .charts {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .chart-container h2 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+        
+        /* Recent Transactions */
+        .recent-transactions {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .recent-transactions h2 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background: #f8f9fa;
+            color: #7f8c8d;
+            font-weight: 500;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status.completed {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        /* Add Entry Form */
+        .add-entry {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .add-entry h2 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #7f8c8d;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        button {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #2980b9;
+        }
+        
+        .btn-income {
+            background: var(--success);
+        }
+        
+        .btn-income:hover {
+            background: #27ae60;
+        }
+        
+        .btn-expense {
+            background: var(--danger);
+        }
+        
+        .btn-expense:hover {
+            background: #c0392b;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .close {
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .charts {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+
+
+
+#exportExcel:hover::after {
+    transform: translateX(3);
+}
+
+/* Excel Button Specific */
+#exportExcel{
+    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+    color: white;
+}
+
+
+#exportExcel:hover {
+    background: linear-gradient(135deg, #44c77b 0%, #2ecc71 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(46, 204, 113, 0.3);
+}
+
+/* PDF Button Specific */
+#exportPDF {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    color: white;
+}
+
+#exportPDF:hover {
+    background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
+}
+
+
+    </style>
+    <!-- For icons (using Font Awesome) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <h1>MERIDIAN Transport</h1>
+            </div>
+            <div class="nav-menu">
+                <div class="nav-item active">
+                    <i class="fas fa-truck-loading"></i>
+                   <a href="dashboard.html"  style="text-decoration: none;color: #f5f6fa;"> <span>Dashboard</span></a>
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-truck-moving"></i>
+                    <a href="truck1calculation.html" style="text-decoration: none;color: #f5f6fa";><span>Truck 1</span></a>
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-truck-moving"></i>
+                   <a href="truck2calculation.html" style="text-decoration: none;color: #f5f6fa;"> <span>Truck 2</span></a>
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-truck-moving"></i>
+                   <span>Truck 3</span> 
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Reports</span>
+                </div>
+                
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1>Financial Dashboard - TN 18 AF 1165</h1>
+                <div class="date">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span id="current-date">July 8, 2025</span>
+                </div>
+            </div>
+            
+            <!-- Add Entry Form -->
+            <div class="add-entry">
+                <h2>Add New Entry</h2>
+                <form id="entry-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="entry-type">Type</label>
+                            <select id="entry-type" required>
+                                <option value="">Select type</option>
+                                <option value="income">Income</option>
+                                <option value="expense">Expense</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="entry-category">Category</label>
+                            <select id="entry-category" required>
+                                <option value="">Select category</option>
+                                <!-- Categories will be populated by JS -->
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="entry-amount">Amount</label>
+                            <input type="number" id="entry-amount" placeholder="0.00" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="entry-date">Date</label>
+                            <input type="date" id="entry-date" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="entry-description">Description</label>
+                        <input type="text" id="entry-description" placeholder="Enter description" required>
+                    </div>
+                    
+                    <div class="form-group" id="trip-group" style="display: none;">
+                        <label for="entry-trip">Trip Reference</label>
+                        <input type="text" id="entry-trip" placeholder="Enter trip ID or reference">
+                    </div>
+                    
+                    <div class="form-group">
+                        <button type="button" id="btn-add-income" class="btn-income" style="display: none;">
+                            <i class="fas fa-plus-circle"></i> Add Income
+                        </button>
+                        <button type="button" id="btn-add-expense" class="btn-expense" style="display: none;">
+                            <i class="fas fa-minus-circle"></i> Add Expense
+                        </button>
+                        <button type="submit" id="btn-submit" style="display: none;">Submit</button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Cards -->
+            <div class="cards">
+                <div class="card income">
+                    <h3>Total Income</h3>
+                    <div class="value" id="total-income">₹0</div>
+                    <p id="income-change">+0% from last month</p>
+                </div>
+                <div class="card expenses">
+                    <h3>Total Expenses</h3>
+                    <div class="value" id="total-expenses">₹0</div>
+                    <p id="expenses-change">+0% from last month</p>
+                </div>
+                <div class="card profit">
+                    <h3>Net Profit</h3>
+                    <div class="value" id="net-profit">₹0</div>
+                    <p id="profit-change">+0% from last month</p>
+                </div>
+                <div class="card">
+                    <h3>Completed Trips</h3>
+                    <div class="value" id="completed-trips">0</div>
+                    <p id="trips-change">+0 from last month</p>
+                </div>
+            </div>
+            
+            <!-- Charts -->
+            <div class="charts">
+                <div class="chart-container">
+                    <h2>Monthly Financial Overview</h2>
+                    <div id="monthly-chart" style="height: 300px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; color: #7f8c8d;">
+                        [Monthly Income/Expenses Chart]
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <h2>Expense Breakdown</h2>
+                    <div id="expense-chart" style="height: 300px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; color: #7f8c8d;">
+                        [Expense Categories Pie Chart]
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Transactions -->
+            <div class="recent-transactions">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2>Recent Transactions</h2>
+                    <!-- Add this near your "View All" button -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+   
+    <div>
+        <button class="btn btn-sm btn-outline-success me-2" id="exportExcel">
+            <i class="fas fa-file-excel me-1"></i> Excel
+        </button>
+        <button class="btn btn-sm btn-outline-danger me-2" id="exportPDF">
+            <i class="fas fa-file-pdf me-1"></i> PDF
+        </button>
+        
+    </div>
+</div>
+                    <button id="btn-view-all" style="padding: 5px 10px; font-size: 0.9rem;">View All</button>
+                </div>
+            
+
+                <table id="transactions-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th>Type</th>
+                            <th>Category</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactions-body">
+                        <!-- Transactions will be added here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit Modal -->
+    <div class="modal" id="edit-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Transaction</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="edit-form">
+                <input type="hidden" id="edit-id">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit-type">Type</label>
+                        <select id="edit-type" required>
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-category">Category</label>
+                        <select id="edit-category" required>
+                            <!-- Categories will be populated by JS -->
+                            
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit-amount">Amount</label>
+                        <input type="number" id="edit-amount" placeholder="0.00" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-date">Date</label>
+                        <input type="date" id="edit-date" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-description">Description</label>
+                    <input type="text" id="edit-description" placeholder="Enter description" required>
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit" class="btn-income">Save Changes</button>
+                    <button type="button" id="btn-delete" class="btn-expense">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+
+    <script>
+        // Data storage
+        let transactions = JSON.parse(localStorage.getItem('transportTransactions')) || [];
+        
+        // Categories
+        const incomeCategories = [
+            'Freight Delivery',
+            'Local Delivery',
+            'Interstate Transport',
+            'Special Load',
+            'Other Income'
+        ];
+        
+        const expenseCategories = [
+            'Fuel',
+            'Maintenance',
+            'Insurance',
+            'Salaries',
+            'Tolls',
+            'Parking',
+            'Repairs',
+            'Other Expenses'
+        ];
+        
+        // DOM Elements
+        const entryForm = document.getElementById('entry-form');
+        const entryType = document.getElementById('entry-type');
+        const entryCategory = document.getElementById('entry-category');
+        const entryAmount = document.getElementById('entry-amount');
+        const entryDate = document.getElementById('entry-date');
+        const entryDescription = document.getElementById('entry-description');
+        const entryTrip = document.getElementById('entry-trip');
+        const tripGroup = document.getElementById('trip-group');
+        const btnAddIncome = document.getElementById('btn-add-income');
+        const btnAddExpense = document.getElementById('btn-add-expense');
+        const btnSubmit = document.getElementById('btn-submit');
+        
+        const transactionsBody = document.getElementById('transactions-body');
+        const totalIncomeEl = document.getElementById('total-income');
+        const totalExpensesEl = document.getElementById('total-expenses');
+        const netProfitEl = document.getElementById('net-profit');
+        const completedTripsEl = document.getElementById('completed-trips');
+        
+        const editModal = document.getElementById('edit-modal');
+        const editForm = document.getElementById('edit-form');
+        const editId = document.getElementById('edit-id');
+        const editType = document.getElementById('edit-type');
+        const editCategory = document.getElementById('edit-category');
+        const editAmount = document.getElementById('edit-amount');
+        const editDate = document.getElementById('edit-date');
+        const editDescription = document.getElementById('edit-description');
+        const btnDelete = document.getElementById('btn-delete');
+        const closeModal = document.querySelector('.close');
+        
+        // Initialize the dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set current date
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-US', options);
+            
+            // Set default date to today
+            const today = new Date().toISOString().split('T')[0];
+            entryDate.value = today;
+            
+            // Load transactions
+            updateDashboard();
+            
+            // Setup event listeners to default
+            setupEventListeners();
+        });
+        
+        function setupEventListeners() {
+            // Entry type change
+            entryType.addEventListener('change', function() {
+                const type = this.value;
+                entryCategory.innerHTML = '<option value="">Select category</option>';
+                
+                if (type === 'income') {
+                    incomeCategories.forEach(cat => {
+                        entryCategory.innerHTML += `<option value="${cat}">${cat}</option>`;
+                    });
+                    btnAddIncome.style.display = 'inline-block';
+                    btnAddExpense.style.display = 'none';
+                    tripGroup.style.display = 'block';
+                } else if (type === 'expense') {
+                    expenseCategories.forEach(cat => {
+                        entryCategory.innerHTML += `<option value="${cat}">${cat}</option>`;
+                    });
+                    btnAddIncome.style.display = 'none';
+                    btnAddExpense.style.display = 'inline-block';
+                    tripGroup.style.display = 'none';
+                } else {
+                    btnAddIncome.style.display = 'none';
+                    btnAddExpense.style.display = 'none';
+                    tripGroup.style.display = 'none';
+                }
+                
+            });
+            
+            // Add income button
+            btnAddIncome.addEventListener('click', addTransaction);
+            
+            // Add expense button
+            btnAddExpense.addEventListener('click', addTransaction);
+            
+            // Form submission
+            entryForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                addTransaction();
+            });
+            
+            // View all button
+            document.getElementById('btn-view-all').addEventListener('click', function() {
+                // In a real app, this would show all transactions
+                alert('This would show all transactions in a full page view');
+            });
+            
+            // Modal close
+            closeModal.addEventListener('click', function() {
+                editModal.style.display = 'none';
+            });
+            
+            // Click outside modal to close
+            window.addEventListener('click', function(e) {
+                if (e.target === editModal) {
+                    editModal.style.display = 'none';
+                }
+            });
+            
+            // Edit form submission
+            editForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveEditedTransaction();
+            });
+            
+            // Delete button
+            btnDelete.addEventListener('click', deleteTransaction);
+        }
+        
+        function addTransaction() {
+            const type = entryType.value;
+            const category = entryCategory.value;
+            const amount = parseFloat(entryAmount.value);
+            const date = entryDate.value;
+            const description = entryDescription.value;
+            const trip = entryTrip.value || null;
+            
+            if (!type || !category || isNaN(amount) || !date || !description) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            const newTransaction = {
+                id: Date.now(),
+                type,
+                category,
+                amount,
+                date,
+                description,
+                trip,
+                createdAt: new Date().toISOString()
+            };
+            
+            transactions.push(newTransaction);
+            saveTransactions();
+            updateDashboard();
+            resetForm();
+        }
+        
+        function saveTransactions() {
+            localStorage.setItem('transportTransactions', JSON.stringify(transactions));
+        }
+        
+        function resetForm() {
+            entryForm.reset();
+            entryDate.value = new Date().toISOString().split('T')[0];
+            btnAddIncome.style.display = 'none';
+            btnAddExpense.style.display = 'none';
+            tripGroup.style.display = 'none';
+        }
+        
+        function updateDashboard() {
+            // Calculate totals
+            const income = transactions
+                .filter(t => t.type === 'income')
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const expenses = transactions
+                .filter(t => t.type === 'expense')
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const profit = income - expenses;
+            const trips = transactions
+                .filter(t => t.type === 'income' && t.trip)
+                .map(t => t.trip)
+                .filter((value, index, self) => self.indexOf(value) === index).length;
+            
+            // Update UI
+            totalIncomeEl.textContent = `\u20B9${income.toFixed(2)}`;
+            totalExpensesEl.textContent = `₹${expenses.toFixed(2)}`;
+            netProfitEl.textContent = `₹${profit.toFixed(2)}`;
+            completedTripsEl.textContent = trips;
+            
+            // Update transactions table
+            updateTransactionsTable();
+            
+            // TODO: Update charts
+        }
+        
+        function updateTransactionsTable() {
+            // Sort by date (newest first)
+            const sortedTransactions = [...transactions].sort((a, b) => 
+                new Date(b.date) - new Date(a.date));
+            
+            // Get last 5 transactions
+            const recentTransactions = sortedTransactions.slice(0, 5);
+            
+            // Clear table
+            transactionsBody.innerHTML = '';
+            
+            // Add transactions to table
+            recentTransactions.forEach(transaction => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${formatDate(transaction.date)}</td>
+                    <td>${transaction.description}</td>
+                    <td class="${transaction.type}">\u20B9${transaction.amount.toFixed(2)}</td>
+                    <td>${capitalizeFirstLetter(transaction.type)}</td>
+                    <td>${transaction.category}</td>
+                    <td>
+                        <button class="btn-edit" data-id="${transaction.id}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </td>
+                `;
+                transactionsBody.appendChild(row);
+            });
+            
+            // Add event listeners to edit buttons
+            document.querySelectorAll('.btn-edit').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = parseInt(this.getAttribute('data-id'));
+                    editTransaction(id);
+                });
+            });
+        }
+        
+        function editTransaction(id) {
+            const transaction = transactions.find(t => t.id === id);
+            if (!transaction) return;
+            
+            // Populate edit form
+            editId.value = transaction.id;
+            editType.value = transaction.type;
+            editAmount.value = transaction.amount;
+            editDate.value = transaction.date;
+            editDescription.value = transaction.description;
+            
+            // Set categories based on type
+            editCategory.innerHTML = '';
+            const categories = transaction.type === 'income' ? incomeCategories : expenseCategories;
+            categories.forEach(cat => {
+                editCategory.innerHTML += `<option value="${cat}" ${cat === transaction.category ? 'selected' : ''}>${cat}</option>`;
+            });
+            
+            // Show modal
+            editModal.style.display = 'flex';
+        }
+        
+        function saveEditedTransaction() {
+            const id = parseInt(editId.value);
+            const transactionIndex = transactions.findIndex(t => t.id === id);
+            
+            if (transactionIndex === -1) return;
+            
+            transactions[transactionIndex] = {
+                ...transactions[transactionIndex],
+                type: editType.value,
+                category: editCategory.value,
+                amount: parseFloat(editAmount.value),
+                date: editDate.value,
+                description: editDescription.value
+            };
+            
+            saveTransactions();
+            updateDashboard();
+            editModal.style.display = 'none';
+        }
+        
+        function deleteTransaction() {
+            const id = parseInt(editId.value);
+            transactions = transactions.filter(t => t.id !== id);
+            
+            saveTransactions();
+            updateDashboard();
+            editModal.style.display = 'none';
+        }
+        
+        // Helper functions
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('en-US', options);
+        }
+        
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+        // Add these to your setupEventListeners function
+document.getElementById('exportExcel').addEventListener('click', exportToExcel);
+document.getElementById('exportPDF').addEventListener('click', exportToPDF);
+
+// Excel Export Function
+function exportToExcel() {
+    const transactions = JSON.parse(localStorage.getItem('transportTransactions')) || [];
+    
+    // Prepare data for Excel
+    const data = [
+        ["Date", "Description", "Amount", "Type", "Category", "Trip Reference"],
+        ...transactions.map(t => [
+            new Date(t.date).toLocaleDateString(),
+            t.description,
+            `$${t.amount.toFixed(2)}`,
+            t.type.charAt(0).toUpperCase() + t.type.slice(1),
+            t.category,
+            t.tripReference || 'N/A'
+        ])
+    ];
+    
+    // Create workbook
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    
+    // Style headers
+    const headerStyle = {
+        fill: { fgColor: { rgb: "2ecc71" } },
+        font: {  bold: true, color: { rgb: "FFFFFF" } },
+    
+
+    };
+    
+    for (let col = 0; col < data[0].length; col++) {
+        const cell = XLSX.utils.encode_cell({ r: 0, c: col });
+        if (!ws[cell]) ws[cell] = {};
+        ws[cell].s = headerStyle;
+    }
+    
+    // Add worksheet to workbook
+    XLSX.utils.book_append_sheet(wb, ws, "Transactions");
+    
+    // Export file
+    const dateStr = new Date().toISOString().split('T')[0];
+    XLSX.writeFile(wb, `Transport_Transactions_${dateStr}.xlsx`);
+}
+
+// PDF Export Function
+function exportToPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const transactions = JSON.parse(localStorage.getItem('transportTransactions')) || [];
+    
+    // Add title
+    doc.setFontSize(18);
+    doc.setTextColor(40, 40, 40);
+    doc.text('MeridiaN Transport Business Transactions - TN 18 AF 1165', 14, 15);
+
+    // Add date
+    doc.setFontSize(10);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 22);
+    
+    // Prepare data for table
+    const tableData = transactions.map(t => [
+        new Date(t.date).toLocaleDateString(),
+        t.description,
+        'Rs. '+t.amount.toFixed(2),
+        t.type.charAt(0).toUpperCase() + t.type.slice(1),
+        t.category,
+        t.tripReference || 'N/A'
+    ]);
+    
+    // Add table
+    doc.autoTable({
+        head: [['Date', 'Description', 'Amount', 'Type', 'Category', 'Trip Ref']],
+        body: tableData,
+        startY: 30,
+        styles: {
+            cellPadding: 3,
+            fontSize: 11,
+            valign: 'middle',
+            halign: 'left'
+        },
+        headStyles: {
+            fillColor: [46, 204, 113], // Green color
+            textColor: 255,
+            fontStyle: 'bold'
+            
+            
+        },
+        alternateRowStyles: {
+            fillColor: [240, 240, 240]
+        },
+        columnStyles: {
+            0: { cellWidth: 25 },
+            1: { cellWidth: 40 },
+            2: { cellWidth: 35 },
+            3: { cellWidth: 25 },
+            4: { cellWidth: 35 },
+            5: { cellWidth: 30 }
+        }
+    });
+    
+    // Add summary
+    const income = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+    const expenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+    const profit = income - expenses;
+    doc.setFontSize(12);
+    doc.text('Summary:', 14, doc.lastAutoTable.finalY + 15);
+    doc.text('Total Income     : Rs. ' + income.toFixed(2), 14, doc.lastAutoTable.finalY + 22);
+    doc.text('Total Expenses : Rs. '+ expenses.toFixed(2), 14, doc.lastAutoTable.finalY + 28);
+    doc.text('Net Profit           : Rs. ' + profit.toFixed(2), 14, doc.lastAutoTable.finalY + 34);
+    // Save PDF
+    const dateStr = new Date().toISOString().split('T')[0];
+    doc.save(`MeridiaN_Transport_TN18AF1165_Report_${dateStr}.pdf`);
+}
+
+
+
+
+
+
+    </script>
+</body>
+</html>

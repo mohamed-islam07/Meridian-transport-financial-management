@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transport Fleet Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="truck1calculation.html">
+    <link rel="stylesheet" href="truck2calculation.html">
+    <link rel="stylesheet" href="truck3calculation.html">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #35549e;
+            --success: #2a5391;
+            --danger: #3047ab;
+            --warning: #2a51a0;
+            --light: #ecf0f1;
+            --dark: #34495e;
+        }
+        :root {
+            --plate-yellow: #FFD700;
+            --plate-dark-yellow: #E5C100;
+            --plate-border: #333;
+            --bolt-color: #555;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'poppins';
+        }
+        
+        body {
+            background-image: linear-gradient( 177.6deg,  rgba(20,0,113,1) 15.3%, rgba(1,0,62,1) 91.3% );
+            /* min-height: 100vh; */
+            padding: 40px;
+            
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            color: var(--primary);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 1.2rem;
+        }
+        
+        .trucks-grid {
+            display: grid;
+            margin-left: -20px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .truck-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .truck-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+        
+        .truck-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+        }
+        
+        .truck-card.truck1::before {
+            background: var(--success);
+        }
+        
+        .truck-card.truck2::before {
+            background: var(--warning);
+        }
+        
+        .truck-card.truck3::before {
+            background: var(--secondary);
+        }
+        
+      
+        
+        
+        
+        .truck-info {
+            padding: 25px;
+        }
+        
+        .truck-name {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .truck-name i {
+            margin-right: 10px;
+            font-size: 1.3rem;
+        }
+        
+        .truck-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--dark);
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+        }
+        
+        .truck-button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            
+            transition: all 0.3s;
+        }
+        
+        .truck1 .truck-button {
+            background: var(--success);
+            color: white;
+        }
+        
+        .truck2 .truck-button {
+            background: var(--warning);
+            color: white;
+        }
+        
+        .truck3 .truck-button {
+            background: var(--secondary);
+            color: white;
+            
+        }
+        
+        .truck-button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        .quote-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-top: 40px;
+        }
+        
+        .quote {
+            font-size: 1.5rem;
+            font-style: italic;
+            color: var(--dark);
+            margin-bottom: 20px;
+            position: relative;
+            padding-left: 30px;
+        }
+        
+        .quote::before {
+            content: '"';
+            position: absolute;
+            left: 0;
+            top: 0;
+            font-size: 3rem;
+            color: var(--secondary);
+            line-height: 1;
+        }
+        
+        .quote-author {
+            text-align: right;
+            color: #7f8c8d;
+            font-weight: bold;
+        }
+        .number-plate-button,.number-plate-button2,.number-plate-button3 {
+            position: relative;
+           margin-left:30px ;margin-top: 40px;
+            width: 320px;
+            height: 120px;
+            background: linear-gradient(145deg, var(--plate-yellow) 0%, var(--plate-dark-yellow) 100%);
+            border-radius: 12px;
+            border: 5px solid var(--plate-border);
+            box-shadow: 
+                0 10px 30px rgba(0,0,0,0.3),
+                inset 0 -3px 10px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            overflow: hidden;
+            
+            color: black;
+            font-weight: bold;
+          
+        }
+        .number-plate-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 15px;
+            background: linear-gradient(to bottom, 
+                rgba(255,215,0,0.8) 0%, 
+                rgba(229,193,0,0.6) 50%, 
+                rgba(179,149,0,0.4) 100%);
+            transform-origin: top;
+            transform: rotateX(40deg);
+            border-radius: 8px 8px 0 0;
+        }
+        
+        /* Reflective Strip */
+        .number-plate-button::after {
+            content: '';
+            position: absolute;
+            top: 20%;
+            left: -50%;
+            width: 200%;
+            height: 30%;
+            background: linear-gradient(
+                to right,
+                rgba(255,255,255,0) 0%,
+                rgba(255,255,255,0.4) 50%,
+                rgba(255,255,255,0) 100%
+            );
+            transform: rotate(15deg);
+            pointer-events: none;
+        }
+        
+        .plate-number {
+            font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+            font-size: 36px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            margin: 0;
+            z-index: 2;
+        }
+        
+        .plate-label {
+            font-size: 14px;
+            margin-top: 5px;
+            z-index: 2;
+        }
+        
+        .bolt {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: var(--bolt-color);
+            border-radius: 50%;
+            border: 2px solid #333;
+            box-shadow: 
+                inset 1px 1px 3px rgba(255,255,255,0.2),
+                0 1px 2px rgba(0,0,0,0.4);
+            z-index: 3;
+        }
+        
+        .bolt::after {
+            content: '+';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -60%);
+            color: rgba(151, 140, 140, 0.7);
+            font-size: 70%;
+        }
+        
+        .bolt-1 { top: 10px; right: 10px; }
+        .bolt-2 { top: 10px; left: 10px; }
+        .bolt-3 { bottom: 10px; right: 10px; }
+        .bolt-4 { bottom: 10px; left: 10px; }
+        
+        /* Hover and Active States */
+        .number-plate-button:hover {
+            transform: translateY(-5px) rotateX(10deg);
+            box-shadow: 
+                0 15px 40px rgba(0,0,0,0.4),
+                inset 0 -3px 10px rgba(0,0,0,0.2);
+        }
+        
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 20px;
+            }
+            
+            .trucks-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+    </style>
+</head>
+<body>
+   
+    <div class="container">
+        <header>
+            <h1>Transport Fleet Dashboard</h1>
+            <p class="subtitle">Manage your fleet's financial performance</p>
+        </header>
+        
+        <div class="trucks-grid">
+            <!-- Truck 1 Card -->
+            <div class="truck-card truck1" onclick="window.location.href=''">
+              <a href="truck1calculation.html">   <div class="truck-image">
+                    <button class="number-plate-button" id="plateButton">
+                        <div class="bolt bolt-1"></div>
+                        <div class="bolt bolt-2"></div>
+                        <div class="bolt bolt-3"></div>
+                        <div class="bolt bolt-4"></div>
+                        
+                       <div class="plate-number">TN 18 AZ 5142</div>
+                </div></a>
+                <div class="truck-info">
+                    <h2 class="truck-name"><i class="fas fa-truck"></i> Mohammed Saleem</h2>
+                    <div class="truck-stats">
+                        <div class="stat">
+                            <div class="stat-value" id="truck1-income">₹23333</div>
+                            <div class="stat-label">Monthly Income</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value" id="truck1-trips">18</div>
+                            <div class="stat-label">Completed Trips</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value" id="truck1-profit">₹18,200</div>
+                            <div class="stat-label">Net Profit</div>
+                        </div>
+                    </div>
+                   <a href="truck1calculation.html"> <button class="truck-button">Add New Transaction</button></a>
+                </div>
+            </div>
+            
+            <!-- Truck 2 Card -->
+            <div class="truck-card truck2" onclick="window.location.href='truck2-dashboard.html'">
+             <a href="truck2calculation.html">    <div class="truck-image">
+                    <button class="number-plate-button" id="plateButton">
+                        <div class="bolt bolt-1"></div>
+                        <div class="bolt bolt-2"></div>
+                        <div class="bolt bolt-3"></div>
+                        <div class="bolt bolt-4"></div>
+                        
+                         <div class="plate-number">TN 18 AL 7297</div> 
+                </div></a>
+                <div class="truck-info">
+                    <h2 class="truck-name"><i class="fas fa-truck"></i>Mohammed Ajmal</h2>
+                    <div class="truck-stats">
+                        <div class="stat">
+                            <div class="stat-value" id="truck2-income">₹18,300</div>
+                            <div class="stat-label">Monthly Income</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value" id="truck2-trips">14</div>
+                            <div class="stat-label">Completed Trips</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value" id="truck2-profit">₹13,500</div>
+                            <div class="stat-label">Net Profit</div>
+                        </div>
+                    </div>
+                <a href="truck2calculation.html">    <button class="truck-button">Add New Transaction</button></a>
+                </div>
+            </div>
+            
+            <!-- Truck 3 Card -->
+            <div class="truck-card truck3" onclick="window.location.href='truck3-dashboard.html'">
+              <a href="truck3calculation.html">   <div class="truck-image">
+                    <button class="number-plate-button" id="plateButton">
+                        <div class="bolt bolt-1"></div>
+                        <div class="bolt bolt-2"></div>
+                        <div class="bolt bolt-3"></div>
+                        <div class="bolt bolt-4"></div>
+                        
+                      <div class="plate-number">TN 18 AF 1165</div>
+                </div></a> 
+                <div class="truck-info">
+                    <h2 class="truck-name"><i class="fas fa-truck"></i>Abdul Subhan</h2>
+                    <div class="truck-stats">
+                        <div class="stat">
+                            <div class="stat-value" id="truck3-income">₹21,700</div>
+                            <div class="stat-label">Monthly Income</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value" id="truck3-trips">16</div>
+                            <div class="stat-label">Completed Trips</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value" id="truck3-profit">₹15,800</div>
+                            <div class="stat-label">Net Profit</div>
+                        </div>
+                    </div>
+                    <a href="truck3calculation.html"><button class="truck-button">Add New Transaction</button></a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="quote-section">
+            <p class="quote">Efficient fleet management is not about reducing costs, but about maximizing the value of every rupee invested in your transportation assets.</p>
+            <p class="quote-author">- Transport Financial Journal</p>
+        </div>
+    </div>
+
+   
+    
+    <style>
+        
+        
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Arial', sans-serif;
+        }
+      
+        
+        /* Animation */
+        @keyframes plateClick {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.95); }
+            100% { transform: scale(1); }
+        }
+        
+        .number-plate-button.clicked {
+            animation: plateClick 0.3s ease;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .number-plate-button {
+                width: 250px;
+                height: 125px;
+            }
+            
+            .plate-number {
+                font-size: 32px;
+            }
+            
+            .plate-label {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+
+
+    
+</body>
+</html>
+</body>
+</html>
